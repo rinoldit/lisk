@@ -24,7 +24,8 @@ const customLevels = {
 		warn: 2,
 		info: 3,
 		debug: 4,
-		trace: 5,
+		query: 5,
+		trace: 10,
 		none: 99,
 	},
 	colors: {
@@ -33,6 +34,7 @@ const customLevels = {
 		warn: 'meganta',
 		info: 'blue',
 		debug: 'green',
+		query: 'green',
 		trace: 'cyan',
 		none: 'black',
 	},
@@ -45,6 +47,18 @@ const defaultLoggerConfig = {
 	level: 'none',
 	consoleLevel: 'debug',
 };
+
+const nestMeta = format(info => {
+	const meta = Object.assign({}, info);
+	delete meta.level;
+	delete meta.timestamp;
+	delete meta.module;
+	delete meta.message;
+	delete meta.action;
+	delete meta.hostname;
+	info.meta = Object.keys(meta).length ? meta : undefined;
+	return info;
+});
 
 const consoleFormat = info => {
 	let log = `[${info.level}] ${info.timestamp} <${info.module}>: ${
@@ -69,7 +83,7 @@ const consoleLog = (level, module) =>
 			format.colorize(),
 			injectKey('module', module)(),
 			format.timestamp(),
-			format.splat(),
+			nestMeta(),
 			format.printf(consoleFormat)
 		),
 	});
@@ -82,7 +96,7 @@ const fileLog = (level, filename, module) =>
 			format.timestamp(),
 			injectKey('module', module)(),
 			injectKey('hostname', os.hostname())(),
-			format.splat(),
+			nestMeta(),
 			format.json()
 		),
 	});
@@ -99,16 +113,16 @@ const getTransport = ({ filename, level, consoleLevel, module }) => {
 };
 
 class Logger {
-	constructor(config = defaultLoggerConfig) {
+	constructor(config = defaultLoggerConfig, name = 'default') {
 		this.config = config;
 		this.container = new winston.Container();
-		this.defaultLogger = this.get('defaultLogger');
+		this.defaultLogger = this.child(name);
 		Object.keys(customLevels.levels).forEach(level => {
 			this[level] = this.defaultLogger[level];
 		});
 	}
 
-	get(moduleName) {
+	child(moduleName) {
 		return this.container.get(moduleName, {
 			level: this.config.level,
 			levels: customLevels.levels,

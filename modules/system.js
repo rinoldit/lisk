@@ -47,7 +47,7 @@ let self;
 class System {
 	constructor(cb, scope) {
 		library = {
-			logger: scope.logger.get('system'),
+			logger: scope.logger.child('system'),
 			db: scope.db,
 			config: {
 				version: scope.config.version,

@@ -55,25 +55,25 @@ __private.isActive = false;
 class Blocks {
 	constructor(cb, scope) {
 		library = {
-			logger: scope.logger.get('blocks'),
+			logger: scope.logger.child('blocks'),
 		};
 
 		// Initialize submodules with library content
 		this.submodules = {
 			api: new blocksAPI(
-				scope.logger.get('blocks/api'),
+				scope.logger.child('blocks/api'),
 				scope.db,
 				scope.logic.block,
 				scope.schema
 			),
 			verify: new blocksVerify(
-				scope.logger.get('blocks/verify'),
+				scope.logger.child('blocks/verify'),
 				scope.logic.block,
 				scope.logic.transaction,
 				scope.db
 			),
 			process: new blocksProcess(
-				scope.logger.get('blocks/process'),
+				scope.logger.child('blocks/process'),
 				scope.logic.block,
 				scope.logic.peers,
 				scope.logic.transaction,
@@ -83,7 +83,7 @@ class Blocks {
 				scope.genesisblock
 			),
 			utils: new blocksUtils(
-				scope.logger.get('blocks/utils'),
+				scope.logger.child('blocks/utils'),
 				scope.logic.account,
 				scope.logic.block,
 				scope.logic.transaction,
@@ -91,7 +91,7 @@ class Blocks {
 				scope.genesisblock
 			),
 			chain: new blocksChain(
-				scope.logger.get('blocks.chain'),
+				scope.logger.child('blocks/chain'),
 				scope.logic.block,
 				scope.logic.transaction,
 				scope.db,

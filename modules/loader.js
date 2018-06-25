@@ -57,7 +57,7 @@ __private.retries = 5;
 class Loader {
 	constructor(cb, scope) {
 		library = {
-			logger: scope.logger.get('loader'),
+			logger: scope.logger.child('loader'),
 			db: scope.db,
 			network: scope.network,
 			schema: scope.schema,
@@ -203,7 +203,7 @@ __private.loadSignatures = function(cb) {
 			},
 			function(peer, waterCb) {
 				library.logger.info('Loading signatures', {
-					meta: { peer: peer.string },
+					peer: peer.string,
 				});
 				peer.rpc.getSignatures((err, res) => {
 					if (err) {
@@ -269,7 +269,7 @@ __private.loadTransactions = function(cb) {
 			},
 			function(peer, waterCb) {
 				library.logger.info('Loading transactions', {
-					meta: { peer: peer.string },
+					peer: peer.string,
 				});
 				peer.rpc.getTransactions((err, res) => {
 					if (err) {
@@ -713,10 +713,8 @@ __private.loadBlocksFromNetwork = function(cb) {
 								return next();
 							}
 							library.logger.info('Found common block', {
-								meta: {
-									blockId: commonBlock.id,
-									peer: peer.string,
-								},
+								blockId: commonBlock.id,
+								peer: peer.string,
 							});
 							return setImmediate(cb);
 						}

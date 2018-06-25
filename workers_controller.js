@@ -49,7 +49,7 @@ SCWorker.create({
 							consoleLevel: config.consoleLogLevel,
 							level: config.fileLogLevel,
 							filename: config.logFileName,
-						})
+						}, 'p2p-worker')
 					);
 				},
 

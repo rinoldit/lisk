@@ -47,7 +47,7 @@ __private.ticking = false;
 class Rounds {
 	constructor(cb, scope) {
 		library = {
-			logger: scope.logger.get('rounds'),
+			logger: scope.logger.child('rounds'),
 			db: scope.db,
 			bus: scope.bus,
 			network: scope.network,

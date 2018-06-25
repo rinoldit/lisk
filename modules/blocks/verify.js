@@ -840,9 +840,7 @@ Verify.prototype.processBlock = function(block, broadcast, saveBlock, cb) {
 			processBlockProfiler.done({
 				message: 'Block processed',
 				action: 'METRICS_BLOCK_PROCESSED',
-				meta: {
-					blockId: block.id,
-				},
+				blockId: block.id,
 			});
 			return setImmediate(cb, err);
 		}

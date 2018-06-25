@@ -55,7 +55,7 @@ __private.assetTypes = {};
 class Transactions {
 	constructor(cb, scope) {
 		library = {
-			logger: scope.logger.get('transactions'),
+			logger: scope.logger.child('transactions'),
 			db: scope.db,
 			schema: scope.schema,
 			ed: scope.ed,
@@ -73,7 +73,7 @@ class Transactions {
 			scope.config.broadcasts.releaseLimit,
 			scope.logic.transaction,
 			scope.bus,
-			scope.logger.get('logic/transactionPool'),
+			scope.logger.child('logic/transactionPool'),
 			scope.balancesSequence
 		);
 
@@ -81,7 +81,7 @@ class Transactions {
 			transactionTypes.SEND
 		] = library.logic.transaction.attachAssetType(
 			transactionTypes.SEND,
-			new Transfer(scope.logger.get('logic/transaction'), library.schema)
+			new Transfer(scope.logger.child('logic/transaction/transfer'), library.schema)
 		);
 
 		setImmediate(cb, null, self);

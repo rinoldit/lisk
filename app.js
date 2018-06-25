@@ -151,7 +151,7 @@ var logger = new Logger({
 	filename: appConfig.logFileName,
 });
 
-var appLogger = logger.get('app');
+var appLogger = logger.child('app');
 
 /**
  * Db logger instance.
@@ -164,14 +164,14 @@ if (
 	appConfig.db.logFileName &&
 	appConfig.db.logFileName === appConfig.logFileName
 ) {
-	dbLogger = logger.get('db');
+	dbLogger = logger.child('db');
 } else {
 	// since log levels for database monitor are different than node app, i.e. "query", "info", "error" etc, which is decided using "logEvents" property
 	dbLogger = new Logger({
 		consoleLevel: process.env.DB_LOG_LEVEL || 'log',
 		level: process.env.FILE_LOG_LEVEL || 'log',
 		filename: appConfig.db.logFileName,
-	}).get('db');
+	}).child('db');
 }
 
 // Try to get the last git commit
@@ -368,7 +368,7 @@ d.run(() => {
 					swagger(
 						scope.network.app,
 						scope.config,
-						scope.logger.get('swagger'),
+						scope.logger.child('api'),
 						scope,
 						cb
 					);
@@ -459,7 +459,7 @@ d.run(() => {
 				cache.connect(
 					config.cacheEnabled,
 					config.cache,
-					logger.get('app/cache'),
+					logger.child('app/cache'),
 					cb
 				);
 			},
@@ -596,7 +596,7 @@ d.run(() => {
 									new Account(
 										scope.db,
 										scope.schema,
-										scope.logger.get('logic/account'),
+										scope.logger.child('logic/account'),
 										cb
 									);
 								},
@@ -616,7 +616,7 @@ d.run(() => {
 										scope.schema,
 										scope.genesisblock,
 										scope.account,
-										scope.logger.get('logic/transaction'),
+										scope.logger.child('logic/transaction'),
 										cb
 									);
 								},
@@ -636,7 +636,7 @@ d.run(() => {
 							peers: [
 								'logger',
 								function(scope, cb) {
-									new Peers(scope.logger.get('logic/peers'), cb);
+									new Peers(scope.logger.child('logic/peers'), cb);
 								},
 							],
 						},
