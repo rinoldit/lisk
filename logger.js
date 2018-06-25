@@ -47,6 +47,7 @@ const logRootKeys = [
 	'message',
 	'action',
 	'hostname',
+	'durationMs',
 ];
 
 winston.addColors(customLevels.colors);
