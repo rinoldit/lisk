@@ -40,6 +40,15 @@ const customLevels = {
 	},
 };
 
+const logRootKeys = [
+	'level',
+	'timestamp',
+	'module',
+	'message',
+	'action',
+	'hostname',
+];
+
 winston.addColors(customLevels.colors);
 
 const defaultLoggerConfig = {
@@ -48,17 +57,18 @@ const defaultLoggerConfig = {
 	consoleLevel: 'debug',
 };
 
-const nestMeta = format(info => {
-	const meta = Object.assign({}, info);
-	delete meta.level;
-	delete meta.timestamp;
-	delete meta.module;
-	delete meta.message;
-	delete meta.action;
-	delete meta.hostname;
-	info.meta = Object.keys(meta).length ? meta : undefined;
-	return info;
-});
+const formatInfo = format(info =>
+	Object.keys(info).reduce((accumulated, key) => {
+		if (logRootKeys.includes(key)) {
+			accumulated[key] = info[key];
+		} else {
+			if (!accumulated.meta) {
+				accumulated.meta = {};
+			}
+			accumulated.meta[key] = info[key];
+		}
+		return accumulated;
+	}, {}));
 
 const consoleFormat = info => {
 	let log = `[${info.level}] ${info.timestamp} <${info.module}>: ${
@@ -83,7 +93,7 @@ const consoleLog = (level, module) =>
 			format.colorize(),
 			injectKey('module', module)(),
 			format.timestamp(),
-			nestMeta(),
+			formatInfo(),
 			format.printf(consoleFormat)
 		),
 	});
@@ -96,7 +106,7 @@ const fileLog = (level, filename, module) =>
 			format.timestamp(),
 			injectKey('module', module)(),
 			injectKey('hostname', os.hostname())(),
-			nestMeta(),
+			formatInfo(),
 			format.json()
 		),
 	});
