@@ -28,7 +28,8 @@ var Logger = require('../../logger');
 
 var logger = new Logger({
 	filename: 'integrationTestsLogger.logs',
-	echo: 'log',
+	level: 'debug',
+	consoleLevel: 'debug',
 });
 
 var SYNC_MODE = {
@@ -444,7 +445,7 @@ describe('integration', function() {
 						clearInterval(checkingInterval);
 						return done(err);
 					}
-					logger.log(
+					logger.info(
 						`network status: height - ${res.height}, average height - ${
 							res.averageHeight
 						}`

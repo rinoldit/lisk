@@ -23,7 +23,8 @@ module.exports = {
 	transactions: require('./transactions'),
 	logger: new Logger({
 		filename: `${__dirname}/integrationTestsLogger.logs`,
-		echo: 'log',
+		level: 'debug',
+		consoleLevel: 'debug',
 	}),
 	getOpenConnections: (ports, cb) => {
 		// lsof -i :5000 -i :5001 -P -n | wc -l

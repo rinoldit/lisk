@@ -33,8 +33,8 @@ var Account = require('../../logic/account.js');
 var modulesLoader = new function() {
 	this.db = null;
 	this.logger = new Logger({
-		echo: null,
-		errorLevel: config.fileLogLevel,
+		consoleLevel: 'none',
+		level: config.fileLogLevel,
 		filename: config.logFileName,
 	});
 	config.nonce = randomstring.generate(16);
