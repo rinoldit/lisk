@@ -12,6 +12,7 @@
  * Removal or modification of this copyright notice is prohibited.
  *
  */
+const os = require('os');
 const winston = require('winston');
 
 const { format } = winston;
@@ -45,68 +46,81 @@ const defaultLoggerConfig = {
 	consoleLevel: 'debug',
 };
 
-const consoleLog = level =>
+const consoleFormat = info => {
+	let log = `[${info.level}] ${info.timestamp} <${info.module}>: ${
+		info.message
+	}`;
+	log += info.durationMs ? ` duration=${info.durationMs}ms` : '';
+	log += info.meta ? `\n\t ${JSON.stringify(info.meta)}` : '';
+	return log;
+};
+
+const injectKey = (key, value) =>
+	format(info => {
+		info[key] = value;
+		return info;
+	});
+
+const consoleLog = (level, module) =>
 	new winston.transports.Console({
 		level,
 		levels: customLevels.levels,
 		format: format.combine(
 			format.colorize(),
+			injectKey('module', module)(),
 			format.timestamp(),
 			format.splat(),
-			format.align()
+			format.printf(consoleFormat)
 		),
 	});
 
-const fileLog = (level, filename) =>
+const fileLog = (level, filename, module) =>
 	new winston.transports.File({
 		level,
 		filename,
 		format: format.combine(
 			format.timestamp(),
+			injectKey('module', module)(),
+			injectKey('hostname', os.hostname())(),
 			format.splat(),
-			format.align(),
 			format.json()
 		),
 	});
 
-const createLogger = ({
-	filename,
-	level,
-	consoleLevel,
-} = defaultLoggerConfig) => {
+const getTransport = ({ filename, level, consoleLevel, module }) => {
 	const transports = [];
 	if (level !== 'none') {
-		transports.push(fileLog(level, filename));
+		transports.push(fileLog(level, filename, module));
 	}
 	if (consoleLevel !== 'none') {
-		transports.push(consoleLog(consoleLevel));
+		transports.push(consoleLog(consoleLevel, module));
 	}
-	return winston.createLogger({
-		level,
-		levels: customLevels.levels,
-		transports,
-		exitOnError: false,
-	});
+	return transports;
 };
 
-const defaultLogger = winston.createLogger();
-
-const updateTransports = ({
-	filename,
-	level,
-	consoleLevel,
-} = defaultLoggerConfig) => {
-	defaultLogger.clear();
-	if (consoleLevel !== 'none') {
-		defaultLogger.add(consoleLog(consoleLevel));
+class Logger {
+	constructor(config = defaultLoggerConfig) {
+		this.config = config;
+		this.container = new winston.Container();
+		this.defaultLogger = this.get('defaultLogger');
+		Object.keys(customLevels.levels).forEach(level => {
+			this[level] = this.defaultLogger[level];
+		});
 	}
-	if (level !== 'none') {
-		defaultLogger.add(fileLog(level, filename));
-	}
-};
 
-module.exports = {
-	default: defaultLogger,
-	createLogger,
-	updateTransports,
-};
+	get(moduleName) {
+		return this.container.get(moduleName, {
+			level: this.config.level,
+			levels: customLevels.levels,
+			transports: getTransport({
+				filename: this.config.filename,
+				level: this.config.level,
+				consoleLevel: this.config.consoleLevel,
+				module: moduleName,
+			}),
+			exitOnError: false,
+		});
+	}
+}
+
+module.exports = Logger;

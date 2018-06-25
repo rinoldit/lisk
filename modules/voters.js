@@ -44,7 +44,7 @@ class Voters {
 	constructor(cb, scope) {
 		library = {
 			db: scope.db,
-			logger: scope.logger,
+			logger: scope.logger.get('voters'),
 			schema: scope.schema,
 		};
 		setImmediate(cb, null, this);

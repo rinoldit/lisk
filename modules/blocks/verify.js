@@ -785,6 +785,7 @@ Verify.prototype.processBlock = function(block, broadcast, saveBlock, cb) {
 		// Break processing if blockchain is not loaded
 		return setImmediate(cb, 'Blockchain is loading');
 	}
+	const processBlockProfiler = library.logger.startTimer();
 
 	async.series(
 		{
@@ -835,7 +836,16 @@ Verify.prototype.processBlock = function(block, broadcast, saveBlock, cb) {
 				broadcast ? modules.transport.broadcastHeaders(seriesCb) : seriesCb();
 			},
 		},
-		err => setImmediate(cb, err)
+		err => {
+			processBlockProfiler.done({
+				message: 'Block processed',
+				action: 'METRICS_BLOCK_PROCESSED',
+				meta: {
+					blockId: block.id,
+				},
+			});
+			return setImmediate(cb, err);
+		}
 	);
 };
 
