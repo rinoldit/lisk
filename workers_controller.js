@@ -27,7 +27,7 @@ var emitMiddleware = require('./api/ws/workers/middlewares/emit');
 var PeersUpdateRules = require('./api/ws/workers/peers_update_rules');
 var Rules = require('./api/ws/workers/rules');
 var failureCodes = require('./api/ws/rpc/failure_codes');
-var Logger = require('./logger');
+var loggerModule = require('./logger');
 var config = require('./config.json');
 
 /**
@@ -45,9 +45,9 @@ SCWorker.create({
 				logger(cb) {
 					cb(
 						null,
-						new Logger({
-							echo: config.consoleLogLevel,
-							errorLevel: config.fileLogLevel,
+						loggerModule.createLogger({
+							consoleLevel: config.consoleLogLevel,
+							level: config.fileLogLevel,
 							filename: config.logFileName,
 						})
 					);

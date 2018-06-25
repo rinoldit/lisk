@@ -22,7 +22,7 @@ var SocketCluster = require('socketcluster');
 var async = require('async');
 var randomstring = require('randomstring');
 var genesisblock = require('./genesis_block.json');
-var Logger = require('./logger.js');
+var loggerModule = require('./logger.js');
 var wsRPC = require('./api/ws/rpc/ws_rpc').wsRPC;
 var wsTransport = require('./api/ws/transport');
 var AppConfig = require('./helpers/config.js');
@@ -145,9 +145,9 @@ var config = {
  *
  * @memberof! app
  */
-var logger = new Logger({
-	echo: process.env.LOG_LEVEL || appConfig.consoleLogLevel,
-	errorLevel: process.env.FILE_LOG_LEVEL || appConfig.fileLogLevel,
+var logger = loggerModule.createLogger({
+	consoleLevel: process.env.LOG_LEVEL || appConfig.consoleLogLevel,
+	level: process.env.FILE_LOG_LEVEL || appConfig.fileLogLevel,
 	filename: appConfig.logFileName,
 });
 
@@ -165,9 +165,9 @@ if (
 	dbLogger = logger;
 } else {
 	// since log levels for database monitor are different than node app, i.e. "query", "info", "error" etc, which is decided using "logEvents" property
-	dbLogger = new Logger({
-		echo: process.env.DB_LOG_LEVEL || 'log',
-		errorLevel: process.env.FILE_LOG_LEVEL || 'log',
+	dbLogger = loggerModule.createLogger({
+		consoleLevel: process.env.DB_LOG_LEVEL || 'log',
+		level: process.env.FILE_LOG_LEVEL || 'log',
 		filename: appConfig.db.logFileName,
 	});
 }

@@ -82,6 +82,7 @@
 		"sway": "=1.0.0",
 		"valid-url": "=1.0.9",
 		"wamp-socket-cluster": "=2.0.0-beta.4",
+		"winston": "=3.0.0",
 		"z-schema": "=3.18.2"
 	},
 	"devDependencies": {
